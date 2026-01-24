@@ -1,0 +1,150 @@
+{
+  "identity": {
+    "name": "Kuber Inventory System",
+    "persona": "E1 - The Elegant Functionalist",
+    "tone": "Professional, Minimalist, Culturally Rooted, Efficient",
+    "emotional_archetype": "Organic & Earthy (Refined)",
+    "primary_objective": "Streamline inventory management with visual elegance suitable for high-value jewellery and handicrafts."
+  },
+  "typography": {
+    "font_family_heading": "Playfair Display, serif",
+    "font_family_body": "Manrope, sans-serif",
+    "scaling": {
+      "h1": "text-4xl font-bold tracking-tight text-gray-900",
+      "h2": "text-3xl font-semibold tracking-tight text-gray-900",
+      "h3": "text-2xl font-semibold text-gray-800",
+      "body": "text-sm text-gray-600 leading-relaxed",
+      "label": "text-xs font-medium text-gray-500 uppercase tracking-wider"
+    },
+    "instructions": "Use 'Playfair Display' ONLY for the main Brand Logo and top-level page titles (e.g., 'Dashboard', 'Inventory'). Use 'Manrope' for all UI elements, tables, forms, and data."
+  },
+  "colors": {
+    "palette": {
+      "primary": "#00923F",
+      "primary_foreground": "#FFFFFF",
+      "secondary": "#F2FCE2",
+      "secondary_foreground": "#14532D",
+      "background": "#FAFAF9",
+      "foreground": "#1C1917",
+      "card": "#FFFFFF",
+      "card_foreground": "#1C1917",
+      "border": "#E7E5E4",
+      "input": "#E7E5E4",
+      "muted": "#F5F5F4",
+      "muted_foreground": "#78716C",
+      "destructive": "#EF4444",
+      "destructive_foreground": "#FFFFFF",
+      "accent": "#00923F",
+      "accent_foreground": "#FFFFFF",
+      "chart_1": "#00923F",
+      "chart_2": "#10B981",
+      "chart_3": "#F59E0B",
+      "chart_4": "#3B82F6",
+      "chart_5": "#6366F1"
+    },
+    "usage_rules": [
+      "Background should be #FAFAF9 (Stone-50) to provide a subtle warm/creamy tone without compromising readability.",
+      "Use #00923F for Primary Buttons, Active States, and key Data Highlights.",
+      "Use #F2FCE2 (very light green) for active sidebar items or subtle backgrounds.",
+      "Never use pure black. Use #1C1917 (Stone-900) for text."
+    ]
+  },
+  "layout": {
+    "grid_system": "Bento Grid (Mode B - High Density)",
+    "spacing": "Generous padding inside cards (p-6), tight gaps between data points.",
+    "border_radius": "rounded-lg (0.5rem) or rounded-xl (0.75rem)",
+    "sidebar": {
+      "width": "w-64",
+      "behavior": "Fixed left, white background, border-r border-stone-200",
+      "style": "Clean vertical navigation with icons (Lucide)."
+    },
+    "dashboard_structure": [
+      {
+        "area": "stats",
+        "description": "Top row: 4 cards showing Total Stock, Low Stock Items, Total Value, Category Distribution."
+      },
+      {
+        "area": "main_chart",
+        "description": "Middle section: Large card (col-span-2) showing Sales/Inventory Movement History."
+      },
+      {
+        "area": "recent_activity",
+        "description": "Right side: Narrow card showing recent additions or sales logs."
+      },
+      {
+        "area": "low_stock_table",
+        "description": "Bottom section: Full width table for 'Low Stock Alert' items."
+      }
+    ]
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-[#00923F] hover:bg-[#007A35] text-white shadow-sm rounded-md px-4 py-2 font-medium transition-all",
+      "secondary": "bg-white border border-stone-200 hover:bg-stone-50 text-stone-700 rounded-md px-4 py-2 font-medium transition-all",
+      "ghost": "hover:bg-stone-100 text-stone-600 hover:text-stone-900"
+    },
+    "cards": {
+      "style": "bg-white border border-stone-100 shadow-sm hover:shadow-md transition-shadow duration-200 rounded-xl"
+    },
+    "tables": {
+      "style": "w-full text-left text-sm",
+      "header": "bg-stone-50 text-stone-500 font-medium border-b border-stone-200",
+      "row": "border-b border-stone-100 hover:bg-stone-50/50 transition-colors",
+      "cell_padding": "p-4"
+    },
+    "inputs": {
+      "style": "border-stone-200 focus:ring-2 focus:ring-[#00923F] focus:border-transparent rounded-md bg-white shadow-sm"
+    }
+  },
+  "visual_enhancers": {
+    "shadows": "shadow-sm for cards, shadow-md for dropdowns/modals. Avoid heavy dropshadows.",
+    "gradients": "None. Stick to flat, clean colors. Maybe very subtle linear gradient on the Dashboard 'Total Value' card background (Green to slightly lighter Green).",
+    "icons": "Lucide React icons. Stroke width 1.5px or 2px. Color: #44403C (Stone-700)."
+  },
+  "images": {
+    "logo_placeholder": "https://placehold.co/200x60/00923F/FFFFFF?text=Kuber",
+    "products": [
+      {
+        "category": "Jewellery",
+        "url": "https://images.unsplash.com/photo-1705684451639-c03ebdf8bd9c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzF8MHwxfHNlYXJjaHwxfHxnb2xkJTIwbmVja2xhY2UlMjBqZXdlbGxlcnklMjB3aGl0ZSUyMGJhY2tncm91bmQlMjBoaWdoJTIwcXVhbGl0eXxlbnwwfHx8fDE3NjkyNzM4ODV8MA&ixlib=rb-4.1.0&q=85",
+        "desc": "Gold Necklace Red Velvet"
+      },
+      {
+        "category": "Jewellery",
+        "url": "https://images.pexels.com/photos/15064041/pexels-photo-15064041.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "desc": "Diamond Pendant"
+      },
+      {
+        "category": "Textiles",
+        "url": "https://images.unsplash.com/photo-1672642919593-976728ec5b5f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODd8MHwxfHNlYXJjaHwzfHxpbmRpYW4lMjBoYW5kaWNyYWZ0cyUyMHRleHRpbGVzJTIwY29sb3JmdWwlMjBkZXRhaWx8ZW58MHx8fHwxNzY5MjczODg3fDA&ixlib=rb-4.1.0&q=85",
+        "desc": "Crochet Detail"
+      },
+      {
+        "category": "Textiles",
+        "url": "https://images.pexels.com/photos/34547922/pexels-photo-34547922.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "desc": "Colorful Indian Textiles"
+      },
+      {
+        "category": "Handicrafts",
+        "url": "https://images.unsplash.com/photo-1703145219083-6037d97decb5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODd8MHwxfHNlYXJjaHw0fHxpbmRpYW4lMjBoYW5kaWNyYWZ0cyUyMHRleHRpbGVzJTIwY29sb3JmdWwlMjBkZXRhaWx8ZW58MHx8fHwxNzY5MjczODg3fDA&ixlib=rb-4.1.0&q=85",
+        "desc": "Paper Hanging Craft"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "1. INSTALL DEPENDENCIES: `npm install lucide-react recharts clsx tailwind-merge @radix-ui/react-slot @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-label @radix-ui/react-select @radix-ui/react-switch @radix-ui/react-tabs @radix-ui/react-toast @radix-ui/react-tooltip class-variance-authority` (or yarn equivalent).",
+    "2. FOLDER STRUCTURE: Create a `layouts` folder for `DashboardLayout` (Sidebar + Header + Content Area).",
+    "3. STATE MANAGEMENT: Use React Context or just simple State for the MVP. No complex Redux needed unless requested.",
+    "4. MOCK DATA: Create a `data/mockData.js` file using the image URLs provided to populate the Inventory List immediately so the user sees a populated dashboard.",
+    "5. CHARTS: Use 'Recharts' for the Analytics. Ensure the colors match the palette (Green/Emerald theme).",
+    "6. TABLES: The Product Table is the heart of this app. Make it beautiful. Include columns for Image (Avatar size), Name, SKU, Category, Price, Stock Level (with color-coded badge), and Actions.",
+    "7. EXPORT: For PDF/Excel export, just mock the button functionality with a toast 'Exporting...' or use `jspdf` / `xlsx` if you want to be extra fancy (but simple toast is fine for MVP UI focus).",
+    "8. ALERTS: Use 'Sonner' or standard Toast for 'Low Stock' warnings.",
+    "9. LOGIN: Create a simple, elegant Login page centered on screen. White card on #FAFAF9 background. Green primary button.",
+    "10. DO NOT use generic black. Always use the specified Stone/Grey codes."
+  ],
+  "accessibility": {
+    "contrast": "Ensure all text on Green buttons is White. Text on light backgrounds must be Gray-700 or darker.",
+    "focus_states": "All interactive elements must have a visible focus ring (ring-2 ring-offset-2 ring-[#00923F])."
+  }
+}
