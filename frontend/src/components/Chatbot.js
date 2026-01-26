@@ -75,7 +75,7 @@ const Chatbot = () => {
       {/* Chat Window */}
       {isOpen && (
         <div
-          className="fixed bottom-6 right-6 w-96 h-[500px] bg-white rounded-xl shadow-2xl border border-stone-200 flex flex-col z-50"
+          className="fixed bottom-6 right-6 w-96 h-[500px] bg-white rounded-xl shadow-2xl border border-stone-200 flex flex-col z-[9999]"
           data-testid="chat-window"
         >
           {/* Header */}
