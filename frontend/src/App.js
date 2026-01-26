@@ -100,10 +100,18 @@ function App() {
           {/* Catch all */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        
+        {/* Chatbot - Only show when user is logged in */}
+        <ChatbotWrapper />
       </BrowserRouter>
       <Toaster position="top-right" richColors closeButton />
     </AuthProvider>
   );
 }
+
+const ChatbotWrapper = () => {
+  const { admin } = useAuth();
+  return admin ? <Chatbot /> : null;
+};
 
 export default App;
