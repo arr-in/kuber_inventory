@@ -369,6 +369,117 @@ async def get_admins(admin: dict = Depends(get_current_admin)):
     admins = await db.admins.find({}, {"_id": 0, "password_hash": 0}).to_list(1000)
     return admins
 
+# Chatbot Endpoint
+@api_router.post("/chat")
+async def chat_with_inventory(request: ChatRequest, admin: dict = Depends(get_current_admin)):
+    """
+    Chatbot endpoint that fetches real inventory data and uses AI to format responses.
+    Uses OpenRouter API for natural language responses.
+    """
+    try:
+        # Fetch real inventory data from database
+        products = await db.products.find({}, {"_id": 0}).to_list(10000)
+        categories = await db.categories.find({}, {"_id": 0}).to_list(1000)
+        
+        # Calculate inventory statistics
+        total_products = len(products)
+        total_stock_value = sum(p["price"] * p["quantity"] for p in products)
+        low_stock_products = [p for p in products if p["quantity"] <= p.get("low_stock_threshold", 10)]
+        out_of_stock_products = [p for p in products if p["quantity"] == 0]
+        
+        # Category-wise breakdown
+        category_stats = {}
+        for cat in categories:
+            cat_products = [p for p in products if p["category"] == cat["name"]]
+            category_stats[cat["name"]] = {
+                "count": len(cat_products),
+                "total_value": sum(p["price"] * p["quantity"] for p in cat_products)
+            }
+        
+        # Prepare inventory context for AI
+        inventory_context = f"""
+REAL INVENTORY DATA (DO NOT MAKE UP ANY NUMBERS):
+
+Total Products: {total_products}
+Total Stock Value: ₹{total_stock_value:,.2f}
+Low Stock Items: {len(low_stock_products)}
+Out of Stock Items: {len(out_of_stock_products)}
+
+Categories:
+{chr(10).join([f"- {name}: {stats['count']} products, Value: ₹{stats['total_value']:,.2f}" for name, stats in category_stats.items()])}
+
+Low Stock Products:
+{chr(10).join([f"- {p['name']} (SKU: {p['sku']}): {p['quantity']} units (Threshold: {p.get('low_stock_threshold', 10)})" for p in low_stock_products[:10]])}
+
+{"Out of Stock Products:" if out_of_stock_products else ""}
+{chr(10).join([f"- {p['name']} (SKU: {p['sku']})" for p in out_of_stock_products[:10]]) if out_of_stock_products else ""}
+
+All Products Summary:
+{chr(10).join([f"- {p['name']}: {p['quantity']} units @ ₹{p['price']:,.2f} each ({p['category']})" for p in products[:20]])}
+"""
+        
+        # Get OpenRouter API key from environment
+        openrouter_api_key = os.environ.get('OPENROUTER_API_KEY')
+        if not openrouter_api_key:
+            return {
+                "response": "I apologize, but the chatbot is not configured. Please add OPENROUTER_API_KEY to your environment variables.",
+                "error": "API key not found"
+            }
+        
+        # Call OpenRouter API with real data
+        async with httpx.AsyncClient() as client:
+            openrouter_response = await client.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {openrouter_api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "meta-llama/llama-3.2-3b-instruct:free",
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": f"""You are a helpful inventory assistant for Kuber, a jewellery, handicrafts, and textiles company. 
+
+CRITICAL RULES:
+1. Use ONLY the exact numbers and data provided in the inventory context below
+2. NEVER make up or guess any numbers
+3. If asked about a product not in the data, say you don't have that information
+4. Keep responses concise and professional
+5. Format currency as ₹ (Indian Rupees)
+6. If asked about specific products, search the provided data carefully
+
+{inventory_context}"""
+                        },
+                        {
+                            "role": "user",
+                            "content": request.message
+                        }
+                    ],
+                    "max_tokens": 500,
+                    "temperature": 0.3
+                },
+                timeout=30.0
+            )
+        
+        if openrouter_response.status_code != 200:
+            return {
+                "response": "I'm having trouble connecting to the AI service. Please try again.",
+                "error": f"OpenRouter API error: {openrouter_response.status_code}"
+            }
+        
+        response_data = openrouter_response.json()
+        ai_response = response_data["choices"][0]["message"]["content"]
+        
+        return {"response": ai_response}
+        
+    except Exception as e:
+        logger.error(f"Chatbot error: {str(e)}")
+        return {
+            "response": "I encountered an error processing your request. Please try again.",
+            "error": str(e)
+        }
+
 # Include router
 app.include_router(api_router)
 
