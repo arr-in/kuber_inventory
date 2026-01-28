@@ -98,7 +98,7 @@ Backend fetches from MongoDB:
     ↓
 Backend prepares inventory context with REAL numbers
     ↓
-OpenRouter API call with context + question
+Google Gemini API call with context + question
     ↓
 AI formats response using only provided data
     ↓
