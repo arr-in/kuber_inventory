@@ -258,13 +258,13 @@ To export this project for GitHub/Vercel:
 ## Cost Analysis
 
 **Free Forever:**
-- OpenRouter Llama 3.2 3B (free tier)
+- Google Gemini API (generous free tier)
 - MongoDB Atlas (512MB free)
 - Vercel (Frontend hosting)
 - Railway (Free tier available)
 
 **Paid Options (if needed):**
-- OpenRouter: Pay per token (very cheap)
+- Google Gemini: Pay-as-you-go (very affordable)
 - MongoDB Atlas: Starts at $9/mo for more storage
 - Railway: ~$5/mo for backend
 - Vercel: $20/mo for Pro features
