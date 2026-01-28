@@ -444,7 +444,7 @@ CRITICAL RULES:
         # Call Gemini API with real data
         async with httpx.AsyncClient() as client:
             gemini_response = await client.post(
-                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_api_key}",
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={gemini_api_key}",
                 headers={
                     "Content-Type": "application/json"
                 },
