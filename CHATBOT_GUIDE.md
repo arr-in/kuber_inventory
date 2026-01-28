@@ -188,15 +188,17 @@ For production with high traffic:
 
 ### Change AI Model
 
-Edit `server.py` line in `/api/chat` endpoint:
+Edit `server.py` in the `/api/chat` endpoint:
 
 ```python
-"model": "meta-llama/llama-3.2-3b-instruct:free"
+# Change from gemini-1.5-flash to gemini-1.5-pro for better responses
+f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key={gemini_api_key}"
 ```
 
-Other free models:
-- `mistralai/mistral-7b-instruct:free`
-- `google/gemma-2-9b-it:free`
+Available Gemini models:
+- `gemini-1.5-flash` (Fast, free)
+- `gemini-1.5-pro` (More capable, free with limits)
+- `gemini-1.0-pro` (Legacy, still supported)
 
 ### Adjust Response Length
 
