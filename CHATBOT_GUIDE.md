@@ -77,9 +77,10 @@ uvicorn server:app --host 0.0.0.0 --port 8001 --reload
 ## Technical Details
 
 ### Model Used
-- **Provider**: OpenRouter
-- **Model**: `meta-llama/llama-3.2-3b-instruct:free`
-- **Cost**: FREE (no credit card required)
+- **Provider**: Google Gemini
+- **Model**: `gemini-1.5-flash`
+- **Cost**: FREE (15 requests per minute, 1 million tokens per day)
+- **API Docs**: https://ai.google.dev/gemini-api/docs
 
 ### Data Flow
 
