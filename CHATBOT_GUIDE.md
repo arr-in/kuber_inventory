@@ -133,9 +133,10 @@ Response sent back to user
 ## Troubleshooting
 
 ### "API key not found" error
-- Make sure `OPENROUTER_API_KEY` is in `backend/.env`
+- Make sure `GEMINI_API_KEY` is in `backend/.env`
 - Restart backend after adding the key
 - Check for typos in the key
+- Ensure key starts with `AIza`
 
 ### Chatbot not visible
 - Make sure you're logged in
