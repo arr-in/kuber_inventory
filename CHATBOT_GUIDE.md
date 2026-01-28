@@ -8,24 +8,24 @@ The Kuber Inventory System now includes an AI-powered chatbot that answers quest
 
 1. **User asks a question** → Frontend sends to `/api/chat`
 2. **Backend fetches real inventory data** → MongoDB queries for products, categories, stats
-3. **Backend sends data + question to OpenRouter** → AI formats response using real numbers
+3. **Backend sends data + question to Google Gemini** → AI formats response using real numbers
 4. **AI responds in natural language** → User gets accurate answer
 
 ## Setup (Required)
 
-### 1. Get OpenRouter API Key (FREE)
+### 1. Get Gemini API Key (FREE)
 
-1. Visit https://openrouter.ai/
-2. Sign up (it's free)
-3. Go to https://openrouter.ai/keys
-4. Create a new API key
-5. Copy the key (starts with `sk-or-...`)
+1. Visit https://aistudio.google.com/app/apikey
+2. Sign in with your Google account
+3. Click "Create API Key"
+4. Select "Create API key in new project" or use existing project
+5. Copy the API key (starts with `AIza...`)
 
 ### 2. Add to Environment Variables
 
 **Backend `.env` file:**
 ```env
-OPENROUTER_API_KEY=sk-or-v1-your-key-here
+GEMINI_API_KEY=AIza-your-key-here
 ```
 
 **Important**: 
