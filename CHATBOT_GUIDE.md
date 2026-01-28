@@ -234,7 +234,7 @@ To export this project for GitHub/Vercel:
    DB_NAME=kuber_inventory
    CORS_ORIGINS=*
    JWT_SECRET_KEY=your-secret-key
-   OPENROUTER_API_KEY=your-openrouter-key
+   GEMINI_API_KEY=your-gemini-api-key
    ```
    
    `frontend/.env.example`:
