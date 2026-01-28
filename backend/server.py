@@ -374,7 +374,7 @@ async def get_admins(admin: dict = Depends(get_current_admin)):
 async def chat_with_inventory(request: ChatRequest, admin: dict = Depends(get_current_admin)):
     """
     Chatbot endpoint that fetches real inventory data and uses AI to format responses.
-    Uses OpenRouter API for natural language responses.
+    Uses Google Gemini API for natural language responses.
     """
     try:
         # Fetch real inventory data from database
@@ -418,28 +418,16 @@ All Products Summary:
 {chr(10).join([f"- {p['name']}: {p['quantity']} units @ ₹{p['price']:,.2f} each ({p['category']})" for p in products[:20]])}
 """
         
-        # Get OpenRouter API key from environment
-        openrouter_api_key = os.environ.get('OPENROUTER_API_KEY')
-        if not openrouter_api_key:
+        # Get Gemini API key from environment
+        gemini_api_key = os.environ.get('GEMINI_API_KEY')
+        if not gemini_api_key:
             return {
-                "response": "I apologize, but the chatbot is not configured. Please add OPENROUTER_API_KEY to your environment variables.",
+                "response": "I apologize, but the chatbot is not configured. Please add GEMINI_API_KEY to your environment variables.",
                 "error": "API key not found"
             }
         
-        # Call OpenRouter API with real data
-        async with httpx.AsyncClient() as client:
-            openrouter_response = await client.post(
-                "https://openrouter.ai/api/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {openrouter_api_key}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": "meta-llama/llama-3.2-3b-instruct:free",
-                    "messages": [
-                        {
-                            "role": "system",
-                            "content": f"""You are a helpful inventory assistant for Kuber, a jewellery, handicrafts, and textiles company. 
+        # Prepare prompt for Gemini
+        system_instruction = f"""You are a helpful inventory assistant for Kuber, a jewellery, handicrafts, and textiles company. 
 
 CRITICAL RULES:
 1. Use ONLY the exact numbers and data provided in the inventory context below
@@ -450,26 +438,48 @@ CRITICAL RULES:
 6. If asked about specific products, search the provided data carefully
 
 {inventory_context}"""
-                        },
-                        {
-                            "role": "user",
-                            "content": request.message
-                        }
-                    ],
-                    "max_tokens": 500,
-                    "temperature": 0.3
+
+        full_prompt = f"{system_instruction}\n\nUser Question: {request.message}"
+        
+        # Call Gemini API with real data
+        async with httpx.AsyncClient() as client:
+            gemini_response = await client.post(
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_api_key}",
+                headers={
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "contents": [{
+                        "parts": [{
+                            "text": full_prompt
+                        }]
+                    }],
+                    "generationConfig": {
+                        "temperature": 0.3,
+                        "maxOutputTokens": 500,
+                    }
                 },
                 timeout=30.0
             )
         
-        if openrouter_response.status_code != 200:
+        if gemini_response.status_code != 200:
+            logger.error(f"Gemini API error: {gemini_response.status_code} - {gemini_response.text}")
             return {
                 "response": "I'm having trouble connecting to the AI service. Please try again.",
-                "error": f"OpenRouter API error: {openrouter_response.status_code}"
+                "error": f"Gemini API error: {gemini_response.status_code}"
             }
         
-        response_data = openrouter_response.json()
-        ai_response = response_data["choices"][0]["message"]["content"]
+        response_data = gemini_response.json()
+        
+        # Extract response from Gemini format
+        try:
+            ai_response = response_data["candidates"][0]["content"]["parts"][0]["text"]
+        except (KeyError, IndexError) as e:
+            logger.error(f"Error parsing Gemini response: {e}")
+            return {
+                "response": "I received an unexpected response format. Please try again.",
+                "error": "Response parsing error"
+            }
         
         return {"response": ai_response}
         
