@@ -145,8 +145,9 @@ Response sent back to user
 
 ### "Failed to get response"
 - Verify internet connection
-- Check OpenRouter API status
+- Check Google AI Studio status: https://status.cloud.google.com/
 - Look at backend logs: `tail -f /var/log/supervisor/backend.err.log`
+- Verify API key is valid at https://aistudio.google.com/app/apikey
 
 ### AI gives wrong numbers
 - The chatbot uses real data from your database
