@@ -275,7 +275,7 @@ If you encounter issues:
 1. Check backend logs
 2. Verify environment variables
 3. Test API endpoint directly with curl
-4. Check OpenRouter dashboard for API usage
+4. Check Gemini API usage at https://aistudio.google.com/
 
 ## Future Enhancements
 
