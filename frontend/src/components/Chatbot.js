@@ -148,7 +148,7 @@ const Chatbot = () => {
                 <Send className="w-5 h-5" />
               </button>
             </div>
-            <p className="text-xs text-stone-500 mt-2">Powered by AI • Uses real inventory data</p>
+            <p className="text-xs text-stone-500 mt-2">Powered by Google Gemini • Uses real inventory data</p>
           </div>
         </div>
       )}
