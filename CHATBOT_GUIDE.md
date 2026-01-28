@@ -160,7 +160,7 @@ Response sent back to user
 
 **Development:**
 ```env
-OPENROUTER_API_KEY=sk-or-v1-...
+GEMINI_API_KEY=AIza...
 ```
 
 **Production (Vercel/Netlify):**
@@ -173,15 +173,16 @@ OPENROUTER_API_KEY=sk-or-v1-...
 
 ### Free Tier Limits
 
-OpenRouter free tier includes:
-- Llama 3.2 3B model (free forever)
-- Reasonable rate limits
+Google Gemini free tier includes:
+- Gemini 1.5 Flash model (free forever)
+- 15 requests per minute
+- 1 million tokens per day
 - No credit card required
 
 For production with high traffic:
-- Consider upgrading to paid tier
-- Use caching to reduce API calls
-- Add rate limiting
+- Monitor usage at https://aistudio.google.com/
+- Consider rate limiting on your end
+- Upgrade to paid tier if needed
 
 ## Customization
 
