@@ -202,10 +202,10 @@ Available Gemini models:
 
 ### Adjust Response Length
 
-Change `max_tokens` in the API call:
+Change `maxOutputTokens` in the API call:
 
 ```python
-"max_tokens": 500,  # Increase for longer responses
+"maxOutputTokens": 500,  # Increase for longer responses
 ```
 
 ### Modify AI Personality
