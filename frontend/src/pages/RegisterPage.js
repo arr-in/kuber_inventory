@@ -36,7 +36,7 @@ const RegisterPage = () => {
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
               <img 
-                src="https://customer-assets.emergentagent.com/job_jewel-track-5/artifacts/st7so2l7_IMG_1568.jpg"
+                src="https://customer-assets.emergentagent.com/job_jewel-track-5/artifacts/a07ojrn9_Untitled%20design%20%282%29%20%281%29.png"
                 alt="Kuber Logo"
                 className="h-24 w-auto object-contain"
               />
