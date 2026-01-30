@@ -33,7 +33,7 @@ const DashboardLayout = () => {
           <div className="flex items-center justify-between h-16 px-6 border-b border-stone-200">
             <Link to="/dashboard" className="flex items-center">
               <img 
-                src="https://customer-assets.emergentagent.com/job_jewel-track-5/artifacts/st7so2l7_IMG_1568.jpg"
+                src="https://customer-assets.emergentagent.com/job_jewel-track-5/artifacts/a07ojrn9_Untitled%20design%20%282%29%20%281%29.png"
                 alt="Kuber Logo"
                 className="h-12 w-auto object-contain"
               />
