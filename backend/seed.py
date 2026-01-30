@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 
 # MongoDB connection
 MONGO_URL = "mongodb://localhost:27017"
-DB_NAME = "test_database"
+DB_NAME = "kuber_inventory"
 
 async def seed_database():
     client = AsyncIOMotorClient(MONGO_URL)
