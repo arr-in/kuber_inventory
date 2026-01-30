@@ -34,7 +34,13 @@ const RegisterPage = () => {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-xl shadow-sm border border-stone-100 p-8">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold font-heading text-[#00923F] mb-2">Kuber</h1>
+            <div className="flex justify-center mb-4">
+              <img 
+                src="https://customer-assets.emergentagent.com/job_jewel-track-5/artifacts/st7so2l7_IMG_1568.jpg"
+                alt="Kuber Logo"
+                className="h-24 w-auto object-contain"
+              />
+            </div>
             <p className="text-stone-600 text-sm">Create Admin Account</p>
           </div>
 
