@@ -31,7 +31,13 @@ const DashboardLayout = () => {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center justify-between h-16 px-6 border-b border-stone-200">
-            <h1 className="text-2xl font-bold font-heading text-[#00923F]">Kuber</h1>
+            <Link to="/dashboard" className="flex items-center">
+              <img 
+                src="https://customer-assets.emergentagent.com/job_jewel-track-5/artifacts/st7so2l7_IMG_1568.jpg"
+                alt="Kuber Logo"
+                className="h-12 w-auto object-contain"
+              />
+            </Link>
             <button
               onClick={() => setSidebarOpen(false)}
               className="lg:hidden p-2 rounded-md hover:bg-stone-100"
