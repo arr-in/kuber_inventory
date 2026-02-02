@@ -31,7 +31,12 @@ dist/
 dist
 
 # Environment files (comprehensive coverage)
-
+.env
+.env.local
+.env.*.local
+*.env
+*.env.*
+!.env.example
 *token.json*
 *credentials.json*
 
@@ -82,16 +87,19 @@ frontend/node_modules/.cache/default-development/3.pack
 frontend/node_modules/.cache/default-development/0.pack
 frontend/node_modules/.cache/default-development/1.pack
 -e 
-# Environment files
+# Environment files - .env.example should be committed
 *.env
 *.env.*
+!.env.example
 frontend/node_modules/.cache/default-development/1.pack_
 frontend/node_modules/.cache/default-development/2.pack
 -e 
-# Environment files
+# Environment files - .env.example should be committed
 *.env
 *.env.*
+!.env.example
 -e 
-# Environment files
+# Environment files - .env.example should be committed
 *.env
 *.env.*
+!.env.example
