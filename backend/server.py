@@ -4,8 +4,16 @@ from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
+import sys
 import logging
 from pathlib import Path
+
+# Logger must be defined before any handlers use it
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional, Dict, Any
 import uuid
@@ -20,10 +28,17 @@ import httpx
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
+# MongoDB connection - fail at startup if missing
+mongo_url = os.environ.get('MONGO_URL')
+db_name = os.environ.get('DB_NAME')
+if not mongo_url:
+    logger.error("MONGO_URL environment variable is required. Set it in .env or your deployment config.")
+    sys.exit(1)
+if not db_name:
+    logger.error("DB_NAME environment variable is required. Set it in .env or your deployment config.")
+    sys.exit(1)
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[db_name]
 
 # JWT Configuration
 SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-in-production')
@@ -36,6 +51,12 @@ UPLOADS_DIR.mkdir(exist_ok=True)
 
 # Create the main app
 app = FastAPI()
+
+# Health check endpoint (no auth required)
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 api_router = APIRouter(prefix="/api")
 security = HTTPBearer()
 
@@ -418,15 +439,18 @@ All Products Summary:
 {chr(10).join([f"- {p['name']}: {p['quantity']} units @ ₹{p['price']:,.2f} each ({p['category']})" for p in products[:20]])}
 """
         
-        # Get Gemini API key from environment
+        # AI provider: prefer GEMINI_API_KEY, fallback to OPENROUTER_API_KEY
+        # Model: gemini-2.5-flash (Gemini) or openai/gemini-2-flash (OpenRouter)
         gemini_api_key = os.environ.get('GEMINI_API_KEY')
-        if not gemini_api_key:
+        openrouter_api_key = os.environ.get('OPENROUTER_API_KEY')
+        api_key = gemini_api_key or openrouter_api_key
+        if not api_key:
             return {
-                "response": "I apologize, but the chatbot is not configured. Please add GEMINI_API_KEY to your environment variables.",
+                "response": "I apologize, but the chatbot is not configured. Please add GEMINI_API_KEY or OPENROUTER_API_KEY to your environment variables.",
                 "error": "API key not found"
             }
         
-        # Prepare prompt for Gemini
+        # Prepare prompt for AI
         system_instruction = f"""You are a helpful inventory assistant for Kuber, a jewellery, handicrafts, and textiles company. 
 
 CRITICAL RULES:
@@ -441,45 +465,62 @@ CRITICAL RULES:
 
         full_prompt = f"{system_instruction}\n\nUser Question: {request.message}"
         
-        # Call Gemini API with real data
-        async with httpx.AsyncClient() as client:
-            gemini_response = await client.post(
-                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={gemini_api_key}",
-                headers={
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "contents": [{
-                        "parts": [{
-                            "text": full_prompt
-                        }]
-                    }],
-                    "generationConfig": {
-                        "temperature": 0.3,
-                        "maxOutputTokens": 500,
+        # Call AI API: Gemini direct if GEMINI_API_KEY, else OpenRouter (OpenAI-compatible)
+        async with httpx.AsyncClient() as http_client:
+            if gemini_api_key:
+                # Direct Gemini API - model: gemini-2.5-flash
+                response = await http_client.post(
+                    f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={gemini_api_key}",
+                    headers={"Content-Type": "application/json"},
+                    json={
+                        "contents": [{"parts": [{"text": full_prompt}]}],
+                        "generationConfig": {"temperature": 0.3, "maxOutputTokens": 500},
+                    },
+                    timeout=30.0
+                )
+                if response.status_code != 200:
+                    logger.error(f"Gemini API error: {response.status_code} - {response.text}")
+                    return {
+                        "response": "I'm having trouble connecting to the AI service. Please try again.",
+                        "error": f"Gemini API error: {response.status_code}"
                     }
-                },
-                timeout=30.0
-            )
-        
-        if gemini_response.status_code != 200:
-            logger.error(f"Gemini API error: {gemini_response.status_code} - {gemini_response.text}")
-            return {
-                "response": "I'm having trouble connecting to the AI service. Please try again.",
-                "error": f"Gemini API error: {gemini_response.status_code}"
-            }
-        
-        response_data = gemini_response.json()
-        
-        # Extract response from Gemini format
-        try:
-            ai_response = response_data["candidates"][0]["content"]["parts"][0]["text"]
-        except (KeyError, IndexError) as e:
-            logger.error(f"Error parsing Gemini response: {e}")
-            return {
-                "response": "I received an unexpected response format. Please try again.",
-                "error": "Response parsing error"
-            }
+                response_data = response.json()
+                try:
+                    ai_response = response_data["candidates"][0]["content"]["parts"][0]["text"]
+                except (KeyError, IndexError) as e:
+                    logger.error(f"Error parsing Gemini response: {e}")
+                    return {"response": "I received an unexpected response format. Please try again.", "error": "Response parsing error"}
+            else:
+                # OpenRouter API (OpenAI-compatible) - model: google/gemini-2-flash
+                # TODO: If using a different OpenRouter model, set OPENROUTER_MODEL env var
+                model = os.environ.get("OPENROUTER_MODEL", "google/gemini-2-flash:free")
+                response = await http_client.post(
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {openrouter_api_key}",
+                        "Content-Type": "application/json",
+                        "HTTP-Referer": os.environ.get("OPENROUTER_APP_URL", "https://kuber-inventory.local"),
+                    },
+                    json={
+                        "model": model,
+                        "messages": [{"role": "user", "content": full_prompt}],
+                        "temperature": 0.3,
+                        "max_tokens": 500,
+                    },
+                    timeout=30.0
+                )
+                if response.status_code != 200:
+                    logger.error(f"OpenRouter API error: {response.status_code} - {response.text}")
+                    return {
+                        "response": "I'm having trouble connecting to the AI service. Please try again.",
+                        "error": f"OpenRouter API error: {response.status_code}"
+                    }
+                response_data = response.json()
+                try:
+                    ai_response = response_data["choices"][0]["message"]["content"]
+                except (KeyError, IndexError) as e:
+                    logger.error(f"Error parsing OpenRouter response: {e}")
+                    return {"response": "I received an unexpected response format. Please try again.", "error": "Response parsing error"}
         
         return {"response": ai_response}
         
@@ -493,19 +534,17 @@ CRITICAL RULES:
 # Include router
 app.include_router(api_router)
 
+# CORS: use CORS_ORIGINS env var (comma-separated list of origins)
+_origins_raw = os.environ.get('CORS_ORIGINS', '*')
+_cors_origins = [o.strip() for o in _origins_raw.split(',') if o.strip()] if _origins_raw else ['*']
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_origins=_cors_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
