@@ -7,8 +7,7 @@ import os
 import sys
 import logging
 from pathlib import Path
-import certifi
-
+import certifi  # ADD THIS LINE
 
 # Logger must be defined before any handlers use it
 logging.basicConfig(
@@ -33,18 +32,15 @@ load_dotenv(ROOT_DIR / '.env')
 # MongoDB connection - fail at startup if missing
 mongo_url = os.environ.get('MONGO_URL')
 db_name = os.environ.get('DB_NAME')
+
 if not mongo_url:
     logger.error("MONGO_URL environment variable is required. Set it in .env or your deployment config.")
     sys.exit(1)
 if not db_name:
     logger.error("DB_NAME environment variable is required. Set it in .env or your deployment config.")
     sys.exit(1)
-db = client[db_name]
 
-
-
-
-# Use certifi for proper SSL/TLS certificate handling
+# Use certifi for proper SSL/TLS certificate handling (works on all platforms)
 client = AsyncIOMotorClient(
     mongo_url,
     tlscafile=certifi.where(),
@@ -52,12 +48,11 @@ client = AsyncIOMotorClient(
 )
 db = client[db_name]
 
-
-
 # JWT Configuration
 SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-in-production')
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
+
 
 # Create uploads directory
 UPLOADS_DIR = ROOT_DIR / 'uploads'
