@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File, Form, status
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File, Form, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -37,7 +37,12 @@ if not mongo_url:
 if not db_name:
     logger.error("DB_NAME environment variable is required. Set it in .env or your deployment config.")
     sys.exit(1)
-client = AsyncIOMotorClient(mongo_url)
+# tlsAllowInvalidCertificates works around SSL handshake errors on macOS/Anaconda with Atlas
+client = AsyncIOMotorClient(
+    mongo_url,
+    tlsAllowInvalidCertificates=True,
+    serverSelectionTimeoutMS=30000,
+)
 db = client[db_name]
 
 # JWT Configuration
@@ -383,6 +388,41 @@ async def get_inventory_report(admin: dict = Depends(get_current_admin)):
         "total_value": sum(p["price"] * p["quantity"] for p in products),
         "generated_at": datetime.now(timezone.utc).isoformat()
     }
+
+# Seed endpoint - run once after deploy. Requires X-Seed-Key header matching SEED_SECRET env var.
+@api_router.post("/seed")
+async def run_seed(request: Request):
+    """Create admin@kuber.com if missing. Call after deploy. Requires header: X-Seed-Key: <SEED_SECRET>"""
+    seed_secret = os.environ.get("SEED_SECRET")
+    if not seed_secret:
+        raise HTTPException(status_code=404, detail="Seed not configured")
+    if request.headers.get("X-Seed-Key") != seed_secret:
+        raise HTTPException(status_code=403, detail="Invalid seed key")
+    ADMIN_EMAIL = "admin@kuber.com"
+    ADMIN_PASSWORD = "admin123"
+    existing = await db.admins.find_one({"email": ADMIN_EMAIL})
+    if existing:
+        return {"message": "Admin already exists", "email": ADMIN_EMAIL}
+    admin_password = bcrypt.hashpw(ADMIN_PASSWORD.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    admin = {
+        "id": str(uuid.uuid4()),
+        "email": ADMIN_EMAIL,
+        "password_hash": admin_password,
+        "name": "Admin User",
+        "role": "admin",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.admins.insert_one(admin)
+    cat_count = await db.categories.count_documents({})
+    if cat_count == 0:
+        categories = [
+            {"id": str(uuid.uuid4()), "name": "Jewellery", "description": "Gold and silver jewellery items", "product_count": 0},
+            {"id": str(uuid.uuid4()), "name": "Handicrafts", "description": "Traditional handicraft items", "product_count": 0},
+            {"id": str(uuid.uuid4()), "name": "Textiles", "description": "Traditional textiles and fabrics", "product_count": 0},
+            {"id": str(uuid.uuid4()), "name": "Home Decor", "description": "Decorative items for home", "product_count": 0},
+        ]
+        await db.categories.insert_many(categories)
+    return {"message": "Seed complete", "email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
 
 # Admin Management
 @api_router.get("/admins", response_model=List[AdminResponse])

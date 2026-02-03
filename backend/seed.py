@@ -31,7 +31,12 @@ async def seed_database():
         print("ERROR: Set MONGO_URL and DB_NAME in .env", file=sys.stderr)
         sys.exit(1)
 
-    client = AsyncIOMotorClient(MONGO_URL)
+    # tlsAllowInvalidCertificates works around SSL handshake errors on macOS/Anaconda
+    client = AsyncIOMotorClient(
+        MONGO_URL,
+        tlsAllowInvalidCertificates=True,
+        serverSelectionTimeoutMS=30000,
+    )
     db = client[DB_NAME]
 
     # Create admin only if it doesn't exist (do not overwrite existing data)
