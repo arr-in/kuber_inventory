@@ -7,6 +7,8 @@ import os
 import sys
 import logging
 from pathlib import Path
+import certifi
+
 
 # Logger must be defined before any handlers use it
 logging.basicConfig(
@@ -37,13 +39,20 @@ if not mongo_url:
 if not db_name:
     logger.error("DB_NAME environment variable is required. Set it in .env or your deployment config.")
     sys.exit(1)
-# tlsAllowInvalidCertificates works around SSL handshake errors on macOS/Anaconda with Atlas
+db = client[db_name]
+
+
+
+
+# Use certifi for proper SSL/TLS certificate handling
 client = AsyncIOMotorClient(
     mongo_url,
-    tlsAllowInvalidCertificates=True,
+    tlscafile=certifi.where(),
     serverSelectionTimeoutMS=30000,
 )
 db = client[db_name]
+
+
 
 # JWT Configuration
 SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-in-production')
